@@ -9,3 +9,9 @@ Listings/
 *.lst
 *.uvguix.*
 *.bak
+# Keil user files
+*.uvoptx
+*.dbgconf
+DebugConfig/
+# Proteus workspace
+*.workspace
