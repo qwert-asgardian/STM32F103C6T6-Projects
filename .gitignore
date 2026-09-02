@@ -15,3 +15,5 @@ Listings/
 DebugConfig/
 # Proteus workspace
 *.workspace
+# Proteus backups
+Project Backups/
