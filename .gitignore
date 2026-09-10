@@ -9,6 +9,7 @@ Listings/
 *.lst
 *.uvguix.*
 *.bak
+*.exe
 # Keil user files
 *.uvoptx
 *.dbgconf
