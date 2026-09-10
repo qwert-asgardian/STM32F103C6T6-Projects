@@ -6,7 +6,7 @@ void delay(uint32_t a){
 void enable(){
 		GPIOC-> BSRR = 1 << 14;
 		delay(1000);
-		GPIOC -> BRR |= 1 << 14;
+		GPIOC -> BRR = 1 << 14;
 		delay(1000);
 }
 
@@ -17,17 +17,17 @@ void lcd(int rs,int value){
 	else{
 		GPIOC -> BRR = 1<< 15;
 	}
-	GPIOA->ODR &= ~0x0F;
-	GPIOA -> ODR |= (value & 0xF0) >> 4;
+	//GPIOA->ODR &= ~0x0F;
+	GPIOA -> ODR = ((value & 0xF0) >> 4);
 	enable();
 	
-	GPIOA->ODR &= ~0x0F;
-	GPIOA -> ODR |= (value & 0x0F) ;
+	//GPIOA->ODR &= ~0x0F;
+	GPIOA -> ODR = (value & 0x0F) ;
 	enable();
 }
 
-void str(char *ptr){
-		while(*ptr != '\0'){
+void str(unsigned char *ptr){
+		while(*ptr){
 			lcd(1,*ptr++);
 		}
 }
@@ -36,9 +36,13 @@ void EXTI9_5_IRQHandler(void)
 {
     if(EXTI->PR & (1<<8))
     {
-        GPIOB->BRR  = (1<<0);   // RED OFF
-        GPIOB->BRR  = (1<<1);   // YELLOW OFF
+				GPIOB -> ODR =0;
+        //GPIOB->BRR  = (1<<0);   // RED OFF
+        //GPIOB->BRR  = (1<<1);   // YELLOW OFF
         GPIOB->BSRR = (1<<2);   // GREEN ON
+				lcd(0,0x01);
+        lcd(0,0x80);
+				str("Emergency");
         delay(500000);
         EXTI->PR = (1<<8);
     }
@@ -50,7 +54,8 @@ void EXTI4_IRQHandler(void)
     {
         lcd(0,0x01);
         lcd(0,0x80);
-        str("GREEN");
+        str("GO GREEN");
+				delay(500000);
         EXTI->PR = (1<<4);
     }
 }
@@ -67,13 +72,11 @@ int main(){
 		GPIOB -> CRH = 0x00000088;
 		GPIOC -> CRH = 0x22000000;
 		
-		AFIO->EXTICR[1] &= ~(0xF << 0);
-		AFIO->EXTICR[2] &= ~(0xF << 0);
-		AFIO->EXTICR[2] |=  (0x1 << 0);
+		AFIO->EXTICR[1] = 0x00000000;
+		AFIO->EXTICR[2] = 0x00000001;
 		EXTI->IMR  |= (1<<4) | (1<<8);
 		EXTI->FTSR |= (1<<4) | (1<<8);
 		EXTI -> RTSR = 0;
-		NVIC_EnableIRQ(EXTI9_5_IRQn);
 		
 		lcd(0,0x02);
 		lcd(0,0x28);
@@ -86,24 +89,27 @@ int main(){
 		
 		while(1){
 			GPIOB -> BSRR = 1 << 0;
+			lcd(0,0x01);
+			lcd(0,0x80);
 			str("RED");
 			delay(100000);
 			GPIOB -> BRR = 1 <<0;
-			lcd(0,0x01);
-			lcd(0,0x80);
+			
 			
 			GPIOB -> BSRR = 1 << 1;
+			lcd(0,0x01);
+			lcd(0,0x80);
 			str("YELLOW");
 			delay(100000);
 			GPIOB -> BRR = 1 <<1;
-			lcd(0,0x01);
-			lcd(0,0x80);
+			
 			
 			GPIOB -> BSRR = 1 << 2;
+			lcd(0,0x01);
+			lcd(0,0x80);
 			str("GREEN");
 			delay(100000);
 			GPIOB -> BRR = 1 <<2;
-			lcd(0,0x01);
-			lcd(0,0x80);		
+				
 		}
 }
